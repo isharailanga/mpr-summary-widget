@@ -178,19 +178,11 @@ class MPRSummary extends React.Component {
 
     }
 
-    addDocs(docArr, docStatus, docCount) {
-        for (let key in docArr) {
-            if (docArr[key] == docArr[docStatus]) {
-                docArr[key] = docCount;
-            }
-        }
-    }
-
-    componentDidMount() {
+    loadProducts(){
 
         // Load product names when the page is loading
-        const getProdcutsUrl = hostUrl + '/products';
-        axios.get(getProdcutsUrl)
+        const getProductsUrl = hostUrl + '/products';
+        axios.get(getProductsUrl)
             .then(response => {
                 if (response.hasOwnProperty("data")) {
                     // products
@@ -205,8 +197,6 @@ class MPRSummary extends React.Component {
                     this.setState({
                         products: productArr
                     });
-                    console.log("products are:" + JSON.stringify(this.state.products));
-
                 } else {
                     console.log("No data in products.");
                 }
@@ -216,6 +206,19 @@ class MPRSummary extends React.Component {
                     faultyProviderConf: true
                 });
             });
+    }
+
+    addDocs(docArr, docStatus, docCount) {
+        for (let key in docArr) {
+            if (docArr[key] == docArr[docStatus]) {
+                docArr[key] = docCount;
+            }
+        }
+    }
+
+    componentDidMount() {
+
+        this.loadProducts();
 
 
 
@@ -225,9 +228,7 @@ class MPRSummary extends React.Component {
         axios.get(url2)
             .then(response => {
                 if (response.hasOwnProperty("data")) {
-                    let newRows = [];
-                    console.log("count below:");
-                    console.log(response.data.data.count)
+                    console.log("count:", response.data.data.count)
                 } else {
                     console.log("no data");
                 }
@@ -254,17 +255,18 @@ class MPRSummary extends React.Component {
                     value={this.state.selectedProduct}
                     onChange={this.handleChangeProduct}
                     options={this.state.products}
+                    placeholder="Product"
                 />
 
                 <Select
                     value={this.state.selectedVersion}
                     onChange={this.handleChangeVersion}
                     options={this.state.versions}
+                    placeholder="Version"
                 />
 
                 <Paper>
                     <div>
-
                         <Table>
                             <TableHead>
                                 <TableCell> Doc Status </TableCell>
