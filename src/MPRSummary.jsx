@@ -39,7 +39,7 @@ class MPRSummary extends React.Component {
             orderBy: '',
             tableColumnNames: ['Doc Status', 'Count'],
             sortColumns: this.props.sortColumns,
-            rows: [ ['Not Started',0],['Draft Received',0],['No Draft',0],['In-progress',0],['Issues Pending',0]],
+            rows: [['Not Started', 0], ['Draft Received', 0], ['No Draft', 0], ['In-progress', 0], ['Issues Pending', 0]],
             page: 0,
             noDataMessage: this.props.noDataMessage ||
                 <FormattedMessage id='table.no.results.available' defaultMessage='No results available' />,
@@ -78,16 +78,14 @@ class MPRSummary extends React.Component {
 
     clearTable() {
         // clear table
-        let rows = [ ['Not Started',0],['Draft Received',0],['No Draft',0],['In-progress',0],['Issues Pending',0]];
+        let rows = [['Not Started', 0], ['Draft Received', 0], ['No Draft', 0], ['In-progress', 0], ['Issues Pending', 0]];
         this.setState({ rows });
-        console.log("clearing table");
     }
 
     clearVersion() {
         //reset the version selector and load versions based on product
         let selectedVersion = null;
         this.setState({ selectedVersion });
-        console.log("clearing version");
     }
 
     //changing product selector
@@ -96,7 +94,6 @@ class MPRSummary extends React.Component {
         this.clearVersion();
         this.clearTable();
         this.loadVersions(selectedProduct.value);
-        console.log(`product selected:`, selectedProduct.value);
     }
 
     loadVersions(selectedProduct) {
@@ -134,12 +131,9 @@ class MPRSummary extends React.Component {
         axios.get(url)
             .then(response => {
                 if (response.hasOwnProperty("data")) {
-                    //let newRows = [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]];
-                    let newRows = [];
+                    let newRows = this.state.rows.slice(0);
                     response.data.data.forEach(record => {
                         let status;
-                        //this.addDocs(newRows, record.docStatus, record.count);
-
                         switch (record.docStatus) {
                             case 0:
                                 status = 'Not Started';
@@ -160,10 +154,13 @@ class MPRSummary extends React.Component {
                                 status = 'Invalid Status';
                                 break;
                         }
-                        newRows.push([status, record.count])
-                        //newRows.push([record.docStatus, record.count])
+                        for (var i = 0; i < newRows.length; i++) {
+                            if (newRows[i][0] == status) {
+                                newRows[i].count = record.count;
+                            }
+                        }
                     })
-
+                    console.log("newRows:", newRows);
                     this.setState({ rows: newRows });
 
                 } else {
@@ -178,7 +175,7 @@ class MPRSummary extends React.Component {
 
     }
 
-    loadProducts(){
+    loadProducts() {
 
         // Load product names when the page is loading
         const getProductsUrl = hostUrl + '/products';
@@ -208,19 +205,9 @@ class MPRSummary extends React.Component {
             });
     }
 
-    addDocs(docArr, docStatus, docCount) {
-        for (let key in docArr) {
-            if (docArr[key] == docArr[docStatus]) {
-                docArr[key] = docCount;
-            }
-        }
-    }
-
     componentDidMount() {
 
         this.loadProducts();
-
-
 
         // retrieve totl mpr count based on product
         let url2 = 'http://localhost:9090/totalprcount?product=Analytics&version=4.1.0';
