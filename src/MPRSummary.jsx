@@ -115,7 +115,7 @@ class MPRSummary extends React.Component {
         this.setState({ selectedVersion });
         this.clearTable();
         //populate table based on (each product's) selected version
-        this.loadPRTable(this.state.selectedProduct.value, selectedVersion.value);
+        this.loadPRTable(this.state.selectedProduct, selectedVersion);
     }
 
     clearTable() {
