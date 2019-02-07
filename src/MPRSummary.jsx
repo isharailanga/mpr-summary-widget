@@ -17,6 +17,10 @@
  */
 
 import axios from 'axios';
+import FilledInput from '@material-ui/core/FilledInput';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
 import React from 'react';
 import Table from '@material-ui/core/Table';
 import TableHead from '@material-ui/core/TableHead';
@@ -24,11 +28,47 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import Select from 'react-select';
+// import Select from 'react-select';
+import Select from '@material-ui/core/Select';
 import { FormattedMessage } from 'react-intl';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { url as _url } from './config.json';
 
 const hostUrl = _url;
+
+const darkTheme = createMuiTheme({
+    palette: {
+        type: 'dark'
+    },
+    typography: {
+        fontFamily: [
+            "Roboto",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Arial",
+            "sans-serif"
+        ].join(","),
+        useNextVariants: true
+    }
+});
+
+const lightTheme = createMuiTheme({
+    palette: {
+        type: 'light'
+    },
+    typography: {
+        fontFamily: [
+            "Roboto",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Arial",
+            "sans-serif"
+        ].join(","),
+        useNextVariants: true
+    }
+});
 
 class MPRSummary extends React.Component {
 
@@ -69,7 +109,9 @@ class MPRSummary extends React.Component {
     }
 
     //changing version selector
-    handleChangeVersion(selectedVersion) {
+    handleChangeVersion(event) {
+        let selectedVersion = event.target.value;
+        console.log(selectedVersion);
         this.setState({ selectedVersion });
         this.clearTable();
         //populate table based on (each product's) selected version
@@ -89,11 +131,13 @@ class MPRSummary extends React.Component {
     }
 
     //changing product selector
-    handleChangeProduct(selectedProduct) {
+    handleChangeProduct(event) {
+        let selectedProduct = event.target.value;
+        console.log(selectedProduct);
         this.setState({ selectedProduct });
         this.clearVersion();
         this.clearTable();
-        this.loadVersions(selectedProduct.value);
+        this.loadVersions(selectedProduct);
     }
 
     loadVersions(selectedProduct) {
@@ -102,17 +146,9 @@ class MPRSummary extends React.Component {
         axios.get(getVersions)
             .then(response => {
                 if (response.hasOwnProperty("data")) {
-                    // products
-                    let options = response.data.data;
-                    let versionArr;
-
-                    versionArr = options.map(option => ({
-                        value: option,
-                        label: option
-                    }));
-
+                    let versionArray = Object.values(response.data.data);
                     this.setState({
-                        versions: versionArr
+                        versions: versionArray
                     });
                 } else {
                     console.log("no data");
@@ -181,17 +217,9 @@ class MPRSummary extends React.Component {
         axios.get(getProductsUrl)
             .then(response => {
                 if (response.hasOwnProperty("data")) {
-                    // products
-                    let options = response.data.data;
-                    let productArr;
-
-                    productArr = options.map(option => ({
-                        value: option,
-                        label: option
-                    }));
-
+                    let productArray = Object.values(response.data.data);
                     this.setState({
-                        products: productArr
+                        products: productArray
                     });
                 } else {
                     console.log("No data in products.");
@@ -233,48 +261,78 @@ class MPRSummary extends React.Component {
         * render custom table
         * */
     render() {
-        let { rows } = this.state;
+        const { rows } = this.state;
+        const { products } = this.state;
+        const { versions } = this.state;
 
         return (
-            <div>
-                <Select
-                    value={this.state.selectedProduct}
-                    onChange={this.handleChangeProduct}
-                    options={this.state.products}
-                    placeholder="Product"
-                />
 
-                <Select
-                    value={this.state.selectedVersion}
-                    onChange={this.handleChangeVersion}
-                    options={this.state.versions}
-                    placeholder="Version"
-                />
-                <Paper>
-                    <div>
-                        <Table>
-                            <TableHead>
-                                <TableCell> Doc Status </TableCell>
-                                <TableCell> MPR count </TableCell>
-                            </TableHead>
-                            <TableBody>
-                                {rows.map(row => {
-                                    return (
-                                        <TableRow>
-                                            {row.map((data) => {
-                                                return (
-                                                    
-                                                    <TableCell> {data} </TableCell>
-                                                );
-                                            })}
-                                        </TableRow>
-                                    );
-                                })}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </Paper>
-            </div>
+            <MuiThemeProvider
+                theme={this.props.muiTheme.name === 'dark' ? darkTheme : lightTheme}>
+                <div>
+
+                    {/* product selector */}
+
+                    <FormControl>
+                        <Select
+                            value={this.state.selectedProduct}
+                            onChange={this.handleChangeProduct}
+                        >
+                            {/* <MenuItem value=""> <em>None</em> </MenuItem> */}
+                            {products.map((data) => {
+                                return (
+                                    <MenuItem value={data}>{data}</MenuItem>
+                                );
+                            })}
+                        </Select>
+                    </FormControl>
+
+
+                    {/* version selector */}
+
+                    <FormControl>
+                        <Select
+                            value={this.state.selectedVersion}
+                            onChange={this.handleChangeVersion}
+                        >
+                            {/* <MenuItem value=""> <em>None</em> </MenuItem> */}
+                            {versions.map((data) => {
+                                return (
+                                    <MenuItem value={data}>{data}</MenuItem>
+                                );
+                            })}
+                        </Select>
+                    </FormControl>
+
+
+
+
+                    {/* MPR table */}
+                    <Paper>
+                        <div>
+                            <Table>
+                                <TableHead>
+                                    <TableCell> Doc Status </TableCell>
+                                    <TableCell> MPR count </TableCell>
+                                </TableHead>
+                                <TableBody>
+                                    {rows.map(row => {
+                                        return (
+                                            <TableRow>
+                                                {row.map((data) => {
+                                                    return (
+                                                        <TableCell> {data} </TableCell>
+                                                    );
+                                                })}
+                                            </TableRow>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </Paper>
+                </div>
+            </MuiThemeProvider>
         );
     }
 }
