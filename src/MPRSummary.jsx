@@ -156,11 +156,10 @@ class MPRSummary extends React.Component {
                         }
                         for (var i = 0; i < newRows.length; i++) {
                             if (newRows[i][0] == status) {
-                                newRows[i].count = record.count;
+                                newRows[i][1] = record.count;
                             }
                         }
                     })
-                    console.log("newRows:", newRows);
                     this.setState({ rows: newRows });
 
                 } else {
@@ -234,7 +233,7 @@ class MPRSummary extends React.Component {
         * render custom table
         * */
     render() {
-        const { rows } = this.state;
+        let { rows } = this.state;
 
         return (
             <div>
@@ -251,7 +250,6 @@ class MPRSummary extends React.Component {
                     options={this.state.versions}
                     placeholder="Version"
                 />
-
                 <Paper>
                     <div>
                         <Table>
@@ -265,6 +263,7 @@ class MPRSummary extends React.Component {
                                         <TableRow>
                                             {row.map((data) => {
                                                 return (
+                                                    
                                                     <TableCell> {data} </TableCell>
                                                 );
                                             })}
