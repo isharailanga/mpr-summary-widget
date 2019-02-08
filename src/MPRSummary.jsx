@@ -21,7 +21,6 @@ import { MuiThemeProvider, createMuiTheme, withStyles } from '@material-ui/core/
 import { styled } from '@material-ui/styles';
 import { url as _url } from './config.json';
 import axios from 'axios';
-import FilledInput from '@material-ui/core/FilledInput';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -82,10 +81,8 @@ const PageWrapper = withStyles({
 
 const CustomTableHeaderCell = styled(({ color, ...others }) => <TableCell {...others} />)({
     background: styledBy('color', {
-    //   light: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-    //   dark: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)'
-    light: '#D1CFCF',
-    dark: '#6B6B6B'
+        light: '#D1CFCF',
+        dark: '#6B6B6B'
     })
 });
 
@@ -152,41 +149,48 @@ class MPRSummary extends React.Component {
         this.clearVersion = this.clearVersion.bind(this);
     }
 
-    //changing version selector
-    handleChangeVersion(event) {
-        let selectedVersion = event.target.value;
-        console.log(selectedVersion);
-        this.setState({ selectedVersion });
-        this.clearTable();
-        //populate table based on (each product's) selected version
-        this.loadPRTable(this.state.selectedProduct, selectedVersion);
-    }
-
+    /**
+     * Clear MPR count table
+     * */
     clearTable() {
-        // clear table
         let rows = [['Not Started', 0], ['Draft Received', 0], ['No Draft', 0], ['In-progress', 0], ['Issues Pending', 0]];
         this.setState({ rows });
     }
 
+    /**
+     * Clear version selector
+     * */
     clearVersion() {
-        //reset the version selector and load versions based on product
-        let selectedVersion = null;
-        this.setState({ selectedVersion });
+        this.setState({ selectedVersion: '' });
     }
 
-    //changing product selector
-    handleChangeProduct(event) {
-        let selectedProduct = event.target.value;
-        console.log(selectedProduct);
-        //this.setState({ selectedProduct });
-        this.setState({ selectedProduct: event.target.value })
-        this.clearVersion();
-        this.clearTable();
-        this.loadVersions(selectedProduct);
+    /**
+     * Retrieve products from the API
+     * */
+    loadProducts() {
+        const getProductsUrl = hostUrl + '/products';
+        axios.get(getProductsUrl)
+            .then(response => {
+                if (response.hasOwnProperty("data")) {
+                    let productArray = Object.values(response.data.data);
+                    this.setState({
+                        products: productArray
+                    });
+                } else {
+                    console.log("No data in products.");
+                }
+            })
+            .catch(error => {
+                this.setState({
+                    faultyProviderConf: true
+                });
+            });
     }
 
+    /**
+     * Retrieve versions of the prodcuts
+     * */
     loadVersions(selectedProduct) {
-        //get version based on product name
         const getVersions = hostUrl + '/versions?product=' + selectedProduct;
         axios.get(getVersions)
             .then(response => {
@@ -206,8 +210,10 @@ class MPRSummary extends React.Component {
             });
     }
 
+    /**
+     * Retrieve MPR count based on product & version
+     * */
     loadPRTable(productName, prodVersion) {
-        // retrieve mpr count based on product
         let url = hostUrl + '/prcount?product=' + productName + '&version=' + prodVersion;
         axios.get(url)
             .then(response => {
@@ -255,35 +261,35 @@ class MPRSummary extends React.Component {
 
     }
 
-    loadProducts() {
+    /**
+     * Handle product change in product-selector
+     * */
+    handleChangeProduct(event) {
+        let selectedProduct = event.target.value;
+        console.log(selectedProduct);
+        //this.setState({ selectedProduct });
+        this.setState({ selectedProduct: event.target.value })
+        this.clearVersion();
+        this.clearTable();
+        this.loadVersions(selectedProduct);
+    }
 
-        // Load product names when the page is loading
-        const getProductsUrl = hostUrl + '/products';
-        axios.get(getProductsUrl)
-            .then(response => {
-                if (response.hasOwnProperty("data")) {
-                    let productArray = Object.values(response.data.data);
-                    this.setState({
-                        products: productArray
-                    });
-                } else {
-                    console.log("No data in products.");
-                }
-            })
-            .catch(error => {
-                this.setState({
-                    faultyProviderConf: true
-                });
-            });
+    /**
+     * Handle changes in the version selector
+     * */
+    handleChangeVersion(event) {
+        let selectedVersion = event.target.value;
+        console.log(selectedVersion);
+        this.setState({ selectedVersion });
+        this.clearTable();
+        //populate table based on (each product's) selected version
+        this.loadPRTable(this.state.selectedProduct, selectedVersion);
     }
 
     componentDidMount() {
-
         this.loadProducts();
-
         // retrieve totl mpr count based on product
         let url2 = 'http://localhost:9090/totalprcount?product=Analytics&version=4.1.0';
-
         axios.get(url2)
             .then(response => {
                 if (response.hasOwnProperty("data")) {
@@ -297,14 +303,11 @@ class MPRSummary extends React.Component {
                     faultyProviderConf: true
                 });
             });
-
-
-
     }
 
     /**
-        * render custom table
-        * */
+     * Render MPR Summary widget with selectors and table
+     * */
     render() {
         const { rows, products, versions } = this.state;
 
@@ -312,11 +315,9 @@ class MPRSummary extends React.Component {
             <MuiThemeProvider
                 theme={this.props.muiTheme.name === 'dark' ? darkTheme : lightTheme}>
                 <PageWrapper>
-
-                    {/* product selector */}
-
                     <Typography variant='h4' style={styles.h4}>DOC status of MPRs</Typography>
 
+                    {/* Product selector */}
                     <FormControl style={styles.formControl}>
                         <InputLabel htmlFor='product-select'>Product:</InputLabel>
                         <Select
@@ -337,8 +338,7 @@ class MPRSummary extends React.Component {
                     </FormControl>
 
 
-                    {/* version selector */}
-
+                    {/* Version selector */}
                     <FormControl style={styles.formControl}>
                         <InputLabel htmlFor='version-select'>Version:</InputLabel>
                         <Select
@@ -358,10 +358,7 @@ class MPRSummary extends React.Component {
                         </Select>
                     </FormControl>
 
-
-
-
-                    {/* MPR table */}
+                    {/* MPR summary table */}
                     <Paper>
                         <div>
                             <Table style={styles.table}>
@@ -387,6 +384,7 @@ class MPRSummary extends React.Component {
                             </Table>
                         </div>
                     </Paper>
+
                 </PageWrapper>
             </MuiThemeProvider>
         );
