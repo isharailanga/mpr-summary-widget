@@ -427,3 +427,6 @@ $RECYCLE.BIN/
 hs_err_pid*
 
 dist/
+
+# Ignore package-lock.json after initial commit
+package-lock.json
