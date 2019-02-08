@@ -27,14 +27,17 @@ import TableHead from '@material-ui/core/TableHead';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
+import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 // import Select from 'react-select';
 import Select from '@material-ui/core/Select';
+import { styled } from '@material-ui/styles';
 import { FormattedMessage } from 'react-intl';
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { MuiThemeProvider, createMuiTheme, withStyles } from '@material-ui/core/styles';
 import { url as _url } from './config.json';
 
 const hostUrl = _url;
+const styledBy = (property, mapping) => props => mapping[props[property]];
 
 const darkTheme = createMuiTheme({
     palette: {
@@ -70,6 +73,48 @@ const lightTheme = createMuiTheme({
     }
 });
 
+const PageWrapper = withStyles({
+    root: {
+        padding: '30px',
+        background: 'transparent',
+        boxShadow: 'none'
+    }
+})(Paper);
+
+const CustomTableHeaderCell = styled(({ color, ...others }) => <TableCell {...others} />)({
+    background: styledBy('color', {
+    //   light: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
+    //   dark: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)'
+    light: '#D1CFCF',
+    dark: '#6B6B6B'
+    })
+});
+
+const styles = {
+    h4: {
+        marginBottom: '20px'
+    },
+    table: {
+        tableHead: {
+            tableCell: {
+                fontSize: '18px',
+                fontWeight: 500,
+                paddingTop: '10px',
+                paddingBottom: '10px'
+            }
+        },
+        tableBody: {
+            tableCell: {
+                fontSize: '16px'
+            }
+        }
+    },
+    formControl: {
+        margin: '0 20px 30px 0',
+        minWidth: 120,
+    },
+};
+
 class MPRSummary extends React.Component {
 
     constructor(props) {
@@ -85,8 +130,8 @@ class MPRSummary extends React.Component {
                 <FormattedMessage id='table.no.results.available' defaultMessage='No results available' />,
             requirePagination: this.props.requirePagination || false,
             selectedOption: null,
-            selectedProduct: null,
-            selectedVersion: null,
+            selectedProduct: '',
+            selectedVersion: '',
             products: [],
             versions: []
 
@@ -134,7 +179,8 @@ class MPRSummary extends React.Component {
     handleChangeProduct(event) {
         let selectedProduct = event.target.value;
         console.log(selectedProduct);
-        this.setState({ selectedProduct });
+        //this.setState({ selectedProduct });
+        this.setState({ selectedProduct: event.target.value })
         this.clearVersion();
         this.clearTable();
         this.loadVersions(selectedProduct);
@@ -261,24 +307,28 @@ class MPRSummary extends React.Component {
         * render custom table
         * */
     render() {
-        const { rows } = this.state;
-        const { products } = this.state;
-        const { versions } = this.state;
+        const { rows, products, versions } = this.state;
 
         return (
-
             <MuiThemeProvider
                 theme={this.props.muiTheme.name === 'dark' ? darkTheme : lightTheme}>
-                <div>
+                <PageWrapper>
 
                     {/* product selector */}
 
-                    <FormControl>
+                    <Typography variant='h4' style={styles.h4}>DOC status of MPRs</Typography>
+
+                    <FormControl style={styles.formControl}>
+                        <InputLabel htmlFor='product-select'>Product:</InputLabel>
                         <Select
                             value={this.state.selectedProduct}
                             onChange={this.handleChangeProduct}
+                            inputProps={{
+                                name: 'product',
+                                id: 'product-select'
+                            }}
                         >
-                            {/* <MenuItem value=""> <em>None</em> </MenuItem> */}
+                            <MenuItem value=""> <em>None</em> </MenuItem>
                             {products.map((data) => {
                                 return (
                                     <MenuItem value={data}>{data}</MenuItem>
@@ -290,10 +340,15 @@ class MPRSummary extends React.Component {
 
                     {/* version selector */}
 
-                    <FormControl>
+                    <FormControl style={styles.formControl}>
+                        <InputLabel htmlFor='version-select'>Version:</InputLabel>
                         <Select
                             value={this.state.selectedVersion}
                             onChange={this.handleChangeVersion}
+                            inputProps={{
+                                name: 'version',
+                                id: 'version-select'
+                            }}
                         >
                             {/* <MenuItem value=""> <em>None</em> </MenuItem> */}
                             {versions.map((data) => {
@@ -310,10 +365,12 @@ class MPRSummary extends React.Component {
                     {/* MPR table */}
                     <Paper>
                         <div>
-                            <Table>
+                            <Table style={styles.table}>
                                 <TableHead>
-                                    <TableCell> Doc Status </TableCell>
-                                    <TableCell> MPR count </TableCell>
+                                    <TableRow>
+                                        <CustomTableHeaderCell color={this.props.muiTheme.name} style={styles.table.tableHead.tableCell}> Doc Status </CustomTableHeaderCell>
+                                        <CustomTableHeaderCell color={this.props.muiTheme.name} style={styles.table.tableHead.tableCell}> MPR count </CustomTableHeaderCell>
+                                    </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {rows.map(row => {
@@ -321,7 +378,7 @@ class MPRSummary extends React.Component {
                                             <TableRow>
                                                 {row.map((data) => {
                                                     return (
-                                                        <TableCell> {data} </TableCell>
+                                                        <TableCell style={styles.table.tableBody.tableCell}> {data} </TableCell>
                                                     );
                                                 })}
                                             </TableRow>
@@ -331,7 +388,7 @@ class MPRSummary extends React.Component {
                             </Table>
                         </div>
                     </Paper>
-                </div>
+                </PageWrapper>
             </MuiThemeProvider>
         );
     }

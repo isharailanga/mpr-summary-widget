@@ -5,7 +5,9 @@
   "dependencies": {
     "@material-ui/core": "^3.9.2",
     "@material-ui/icons": "^3.0.0",
+    "@material-ui/styles": "^3.0.0-alpha.10",
     "@wso2-dashboards/widget": "^1.4.0",
+    "babel-preset-stage-0": "^6.24.1",
     "moment": "^2.22.1",
     "react": "^16.4.0",
     "react-custom-scrollbars": "^4.2.1",
