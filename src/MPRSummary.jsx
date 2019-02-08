@@ -292,7 +292,7 @@ class MPRSummary extends React.Component {
         let selectedProduct = event.target.value;
         console.log(selectedProduct);
         //this.setState({ selectedProduct });
-        this.setState({ selectedProduct: event.target.value })
+        this.setState({ selectedProduct })
         this.clearVersion();
         this.clearTable();
         this.loadVersions(selectedProduct);
