@@ -16,12 +16,10 @@
  *  under the License.
  */
 
-import { FormattedMessage } from 'react-intl';
 import { MuiThemeProvider, createMuiTheme, withStyles } from '@material-ui/core/styles';
-import { styled } from '@material-ui/styles';
-import { url as _url } from './config.json';
-import axios from 'axios';
+
 import FormControl from '@material-ui/core/FormControl';
+import { FormattedMessage } from 'react-intl';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
@@ -33,6 +31,9 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
+import { url as _url } from './config.json';
+import axios from 'axios';
+import { styled } from '@material-ui/styles';
 
 const hostUrl = _url;
 const styledBy = (property, mapping) => props => mapping[props[property]];
@@ -102,6 +103,10 @@ const styles = {
         tableBody: {
             tableCell: {
                 fontSize: '16px'
+            },
+            tableCellTotal: {
+                fontSize: '18px',
+                fontWeight: 700
             }
         }
     },
@@ -128,6 +133,7 @@ class MPRSummary extends React.Component {
             selectedOption: null,
             selectedProduct: '',
             selectedVersion: '',
+            totalPRCount: 0,
             products: [],
             versions: []
 
@@ -154,7 +160,7 @@ class MPRSummary extends React.Component {
      * */
     clearTable() {
         let rows = [['Not Started', 0], ['Draft Received', 0], ['No Draft', 0], ['In-progress', 0], ['Issues Pending', 0]];
-        this.setState({ rows });
+        this.setState({ rows,totalPRCount:0 });
     }
 
     /**
@@ -214,6 +220,7 @@ class MPRSummary extends React.Component {
      * Retrieve MPR count based on product & version
      * */
     loadPRTable(productName, prodVersion) {
+        let count = 0;
         let url = hostUrl + '/prcount?product=' + productName + '&version=' + prodVersion;
         axios.get(url)
             .then(response => {
@@ -247,7 +254,24 @@ class MPRSummary extends React.Component {
                             }
                         }
                     })
-                    this.setState({ rows: newRows });
+
+                    // Retrieve total PR count for given product-version
+                    let totCountUrl = hostUrl + '/totalprcount?product=' + productName + '&version=' + prodVersion;
+                    axios.get(totCountUrl)
+                        .then(response => {
+                            if (response.hasOwnProperty("data")) {
+                                count = response.data.data.count;
+                                // set the MPR count for each status and total for each product-version
+                                this.setState({ rows: newRows, totalPRCount: count });
+                            } else {
+                                console.log("no data");
+                            }
+                        })
+                        .catch(error => {
+                            this.setState({
+                                faultyProviderConf: true
+                            });
+                        });
 
                 } else {
                     console.log("no data");
@@ -288,28 +312,13 @@ class MPRSummary extends React.Component {
 
     componentDidMount() {
         this.loadProducts();
-        // retrieve totl mpr count based on product
-        let url2 = 'http://localhost:9090/totalprcount?product=Analytics&version=4.1.0';
-        axios.get(url2)
-            .then(response => {
-                if (response.hasOwnProperty("data")) {
-                    console.log("count:", response.data.data.count)
-                } else {
-                    console.log("no data");
-                }
-            })
-            .catch(error => {
-                this.setState({
-                    faultyProviderConf: true
-                });
-            });
     }
 
     /**
      * Render MPR Summary widget with selectors and table
      * */
     render() {
-        const { rows, products, versions } = this.state;
+        const { rows, products, versions, totalPRCount } = this.state;
 
         return (
             <MuiThemeProvider
@@ -380,6 +389,10 @@ class MPRSummary extends React.Component {
                                             </TableRow>
                                         );
                                     })}
+                                    <TableRow>
+                                    <TableCell style={styles.table.tableBody.tableCellTotal}> Total no of MPRs with pending documentation tasks </TableCell>
+                                        <TableCell style={styles.table.tableBody.tableCellTotal}> {totalPRCount} </TableCell>
+                                    </TableRow>
                                 </TableBody>
                             </Table>
                         </div>
