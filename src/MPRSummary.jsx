@@ -102,7 +102,8 @@ const styles = {
         },
         tableBody: {
             tableCell: {
-                fontSize: '16px'
+                fontSize: '16px',
+                cursor: 'pointer'
             },
             tableCellTotal: {
                 fontSize: '18px',
@@ -153,6 +154,7 @@ class MPRSummary extends React.Component {
         this.loadPRTable = this.loadPRTable.bind(this);
         this.clearTable = this.clearTable.bind(this);
         this.clearVersion = this.clearVersion.bind(this);
+        this.handleRowClick = this.handleRowClick.bind(this);
     }
 
     /**
@@ -160,7 +162,7 @@ class MPRSummary extends React.Component {
      * */
     clearTable() {
         let rows = [['Not Started', 0], ['Draft Received', 0], ['No Draft', 0], ['In-progress', 0], ['Issues Pending', 0]];
-        this.setState({ rows,totalPRCount:0 });
+        this.setState({ rows, totalPRCount: 0 });
     }
 
     /**
@@ -290,11 +292,10 @@ class MPRSummary extends React.Component {
      * */
     handleChangeProduct(event) {
         let selectedProduct = event.target.value;
-        console.log(selectedProduct);
-        //this.setState({ selectedProduct });
         this.setState({ selectedProduct })
         this.clearVersion();
         this.clearTable();
+
         this.loadVersions(selectedProduct);
     }
 
@@ -303,11 +304,17 @@ class MPRSummary extends React.Component {
      * */
     handleChangeVersion(event) {
         let selectedVersion = event.target.value;
-        console.log(selectedVersion);
         this.setState({ selectedVersion });
         this.clearTable();
-        //populate table based on (each product's) selected version
+
         this.loadPRTable(this.state.selectedProduct, selectedVersion);
+    }
+
+    handleRowClick(e, data) {
+        if(data[1]>0)
+        console.log(this.state.selectedProduct,"->",this.state.selectedVersion,"->",data[0]);
+        //console.log(row.target.getElementsByTagName("DocStatus"), " clicked");
+
     }
 
     componentDidMount() {
@@ -380,7 +387,7 @@ class MPRSummary extends React.Component {
                                 <TableBody>
                                     {rows.map(row => {
                                         return (
-                                            <TableRow>
+                                            <TableRow hover onClick={((e) => this.handleRowClick(e, row))}>
                                                 {row.map((data) => {
                                                     return (
                                                         <TableCell style={styles.table.tableBody.tableCell}> {data} </TableCell>
@@ -390,7 +397,7 @@ class MPRSummary extends React.Component {
                                         );
                                     })}
                                     <TableRow>
-                                    <TableCell style={styles.table.tableBody.tableCellTotal}> Total no of MPRs with pending documentation tasks </TableCell>
+                                        <TableCell style={styles.table.tableBody.tableCellTotal}> Total no of MPRs with pending documentation tasks </TableCell>
                                         <TableCell style={styles.table.tableBody.tableCellTotal}> {totalPRCount} </TableCell>
                                     </TableRow>
                                 </TableBody>
