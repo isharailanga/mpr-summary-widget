@@ -17,6 +17,7 @@
  */
 
 import { MuiThemeProvider, createMuiTheme, withStyles } from '@material-ui/core/styles';
+import { url as _url, mprdashboard as mprDashboardUrl } from './config.json';
 
 import FormControl from '@material-ui/core/FormControl';
 import { FormattedMessage } from 'react-intl';
@@ -31,7 +32,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
-import { url as _url } from './config.json';
+import appendQuery from 'append-query';
 import axios from 'axios';
 import { styled } from '@material-ui/styles';
 
@@ -119,7 +120,7 @@ const styles = {
 
 class MPRSummary extends React.Component {
 
-    constructor(props) {
+    constructor(props, context) {
         super(props);
         this.state = {
             order: 'desc',
@@ -155,6 +156,7 @@ class MPRSummary extends React.Component {
         this.clearTable = this.clearTable.bind(this);
         this.clearVersion = this.clearVersion.bind(this);
         this.handleRowClick = this.handleRowClick.bind(this);
+
     }
 
     /**
@@ -311,10 +313,15 @@ class MPRSummary extends React.Component {
     }
 
     handleRowClick(e, data) {
-        if(data[1]>0)
-        console.log(this.state.selectedProduct,"->",this.state.selectedVersion,"->",data[0]);
-        //console.log(row.target.getElementsByTagName("DocStatus"), " clicked");
-
+        if (data[1] > 0) {
+            let info = {
+                product: this.state.selectedProduct,
+                version: this.state.selectedVersion,
+                docStatus: data[0]
+            }
+            let redirectUrl = appendQuery(mprDashboardUrl, info);
+            window.open(redirectUrl);
+        }
     }
 
     componentDidMount() {
