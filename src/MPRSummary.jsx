@@ -341,7 +341,9 @@ class MPRSummary extends React.Component {
             let info = {
                 product: this.state.selectedProduct,
                 version: this.state.selectedVersion,
-                status: docStat
+                status: docStat,
+                start: new Date(2018, 0, 1).toISOString(),
+                end: new Date().toISOString()
             }
             let redirectUrl = appendQuery(mprDashboardUrl, info);
             console.log(info);
