@@ -1,4 +1,4 @@
 {
     "url": "http://localhost:9090",
-    "mprdashboard": "http://10.100.0.3:9763/mergedprs"
+    "mprdashboard": "http://localhost:9763/mergedprs"
 }

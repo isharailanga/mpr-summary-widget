@@ -313,13 +313,38 @@ class MPRSummary extends React.Component {
     }
 
     handleRowClick(e, data) {
+
+        let docStat = data[0];
+        console.log(docStat);
+        switch (docStat) {
+            case 'Not Started':
+                docStat = 0;
+                break;
+            case 'Draft Received':
+                docStat = 1;
+                break;
+            case 'No Draft':
+                docStat = 2;
+                break;
+            case 'In-progress':
+                docStat = 3;
+                break;
+            case 'Issues Pending':
+                docStat = 4;
+                break;
+            default:
+                docStat = -99;
+                break;
+        }
+
         if (data[1] > 0) {
             let info = {
                 product: this.state.selectedProduct,
                 version: this.state.selectedVersion,
-                docStatus: data[0]
+                status: docStat
             }
             let redirectUrl = appendQuery(mprDashboardUrl, info);
+            console.log(info);
             window.open(redirectUrl);
         }
     }
