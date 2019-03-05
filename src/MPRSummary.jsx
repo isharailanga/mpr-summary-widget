@@ -17,7 +17,6 @@
  */
 
 import { MuiThemeProvider, createMuiTheme, withStyles } from '@material-ui/core/styles';
-import { url as _url, mprdashboard as mprDashboardUrl } from './config.json';
 
 import FormControl from '@material-ui/core/FormControl';
 import { FormattedMessage } from 'react-intl';
@@ -32,11 +31,13 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
+import { UNMOUNTED } from 'react-transition-group/Transition';
 import appendQuery from 'append-query';
 import axios from 'axios';
+import { mprdashboard as mprDashboardUrl } from './config.json';
 import { styled } from '@material-ui/styles';
 
-const hostUrl = _url;
+const hostUrl = "https://" + window.location.host + window.contextPath + "/apis/mprSummary";
 const styledBy = (property, mapping) => props => mapping[props[property]];
 
 const darkTheme = createMuiTheme({
@@ -179,13 +180,17 @@ class MPRSummary extends React.Component {
      * */
     loadProducts() {
         const getProductsUrl = hostUrl + '/products';
+        console.log(getProductsUrl);
         axios.get(getProductsUrl)
             .then(response => {
+                console.log(response.data);
                 if (response.hasOwnProperty("data")) {
                     let productArray = Object.values(response.data.data);
                     this.setState({
-                        products: productArray
+                        products: productArray,
+                        // selectedProduct:response.data.data[0]
                     });
+                    // this.loadVersions(response.data.data[0]);
                 } else {
                     console.log("No data in products.");
                 }
@@ -207,7 +212,8 @@ class MPRSummary extends React.Component {
                 if (response.hasOwnProperty("data")) {
                     let versionArray = Object.values(response.data.data);
                     this.setState({
-                        versions: versionArray
+                        versions: versionArray,
+                        // selectedVersion:response.data.data[0],
                     });
                 } else {
                     console.log("no data");
@@ -313,9 +319,7 @@ class MPRSummary extends React.Component {
     }
 
     handleRowClick(e, data) {
-
         let docStat = data[0];
-        console.log(docStat);
         switch (docStat) {
             case 'Not Started':
                 docStat = 0;
@@ -346,13 +350,13 @@ class MPRSummary extends React.Component {
                 end: new Date().toISOString()
             }
             let redirectUrl = appendQuery(mprDashboardUrl, info);
-            console.log(info);
             window.open(redirectUrl);
         }
     }
 
     componentDidMount() {
         this.loadProducts();
+        // console.log("MOUNTED");
     }
 
     /**
@@ -365,7 +369,7 @@ class MPRSummary extends React.Component {
             <MuiThemeProvider
                 theme={this.props.muiTheme.name === 'dark' ? darkTheme : lightTheme}>
                 <PageWrapper>
-                    <Typography variant='h4' style={styles.h4}>DOC status of MPRs</Typography>
+                    <Typography variant='h4' style={styles.h4}>DOC status of Merged PRs</Typography>
 
                     {/* Product selector */}
                     <FormControl style={styles.formControl}>
@@ -378,7 +382,6 @@ class MPRSummary extends React.Component {
                                 id: 'product-select'
                             }}
                         >
-                            <MenuItem value=""> <em>None</em> </MenuItem>
                             {products.map((data) => {
                                 return (
                                     <MenuItem value={data}>{data}</MenuItem>
@@ -392,6 +395,7 @@ class MPRSummary extends React.Component {
                     <FormControl style={styles.formControl}>
                         <InputLabel htmlFor='version-select'>Version:</InputLabel>
                         <Select
+                            disabled={(this.state.versions.length == 0)}
                             value={this.state.selectedVersion}
                             onChange={this.handleChangeVersion}
                             inputProps={{
