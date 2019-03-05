@@ -31,7 +31,6 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
-import { UNMOUNTED } from 'react-transition-group/Transition';
 import appendQuery from 'append-query';
 import axios from 'axios';
 import { mprdashboard as mprDashboardUrl } from './config.json';
@@ -183,7 +182,6 @@ class MPRSummary extends React.Component {
         console.log(getProductsUrl);
         axios.get(getProductsUrl)
             .then(response => {
-                console.log(response.data);
                 if (response.hasOwnProperty("data")) {
                     let productArray = Object.values(response.data.data);
                     this.setState({
@@ -192,7 +190,7 @@ class MPRSummary extends React.Component {
                     });
                     // this.loadVersions(response.data.data[0]);
                 } else {
-                    console.log("No data in products.");
+                    console.error("No data in products.");
                 }
             })
             .catch(error => {
@@ -216,7 +214,7 @@ class MPRSummary extends React.Component {
                         // selectedVersion:response.data.data[0],
                     });
                 } else {
-                    console.log("no data");
+                    console.error("Versions not available.");
                 }
             })
             .catch(error => {
@@ -274,7 +272,7 @@ class MPRSummary extends React.Component {
                                 // set the MPR count for each status and total for each product-version
                                 this.setState({ rows: newRows, totalPRCount: count });
                             } else {
-                                console.log("no data");
+                                console.error("Cannot retrieve total PR count.");
                             }
                         })
                         .catch(error => {
@@ -284,7 +282,7 @@ class MPRSummary extends React.Component {
                         });
 
                 } else {
-                    console.log("no data");
+                    console.error("Cannot retrieve PRs.");
                 }
             })
             .catch(error => {
@@ -356,7 +354,6 @@ class MPRSummary extends React.Component {
 
     componentDidMount() {
         this.loadProducts();
-        // console.log("MOUNTED");
     }
 
     /**
@@ -403,7 +400,7 @@ class MPRSummary extends React.Component {
                                 id: 'version-select'
                             }}
                         >
-                            {/* <MenuItem value=""> <em>None</em> </MenuItem> */}
+                            <MenuItem value="all"> All </MenuItem>
                             {versions.map((data) => {
                                 return (
                                     <MenuItem value={data}>{data}</MenuItem>
