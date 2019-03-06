@@ -179,7 +179,6 @@ class MPRSummary extends React.Component {
      * */
     loadProducts() {
         const getProductsUrl = hostUrl + '/products';
-        console.log(getProductsUrl);
         axios.get(getProductsUrl)
             .then(response => {
                 if (response.hasOwnProperty("data")) {
@@ -209,10 +208,12 @@ class MPRSummary extends React.Component {
             .then(response => {
                 if (response.hasOwnProperty("data")) {
                     let versionArray = Object.values(response.data.data);
+                    versionArray.unshift("All");
                     this.setState({
                         versions: versionArray,
-                        // selectedVersion:response.data.data[0],
+                        selectedVersion:versionArray[0],
                     });
+                    this.loadPRTable(selectedProduct, versionArray[0])
                 } else {
                     console.error("Versions not available.");
                 }
@@ -400,7 +401,6 @@ class MPRSummary extends React.Component {
                                 id: 'version-select'
                             }}
                         >
-                            <MenuItem value="all"> All </MenuItem>
                             {versions.map((data) => {
                                 return (
                                     <MenuItem value={data}>{data}</MenuItem>
