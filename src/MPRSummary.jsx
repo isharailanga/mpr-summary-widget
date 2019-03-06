@@ -109,7 +109,7 @@ const styles = {
             tableCellTotal: {
                 fontSize: '18px',
                 fontWeight: 700,
-                'border-top':'2pt solid gray'
+                'border-top': '2pt solid gray'
             }
         }
     },
@@ -319,6 +319,10 @@ class MPRSummary extends React.Component {
     }
 
     handleRowClick(e, data) {
+        if(data[1] == 0){
+            alert("No Merged PRs");
+            return;
+        }
         let docStat = data[0];
         switch (docStat) {
             case 'Not Started':
@@ -341,17 +345,17 @@ class MPRSummary extends React.Component {
                 break;
         }
 
-        if (data[1] > 0) {
-            let info = {
-                product: this.state.selectedProduct,
-                version: this.state.selectedVersion,
-                status: docStat,
-                start: new Date(2018, 0, 1).toISOString(),
-                end: new Date().toISOString()
-            }
-            let redirectUrl = appendQuery(mprDashboardUrl, info);
-            window.open(redirectUrl);
+        // if (data[1] > 0) {
+        let info = {    
+            product: this.state.selectedProduct,
+            version: this.state.selectedVersion,
+            status: docStat,
+            start: new Date(2018, 0, 1).toISOString(),
+            end: new Date().toISOString()
         }
+        let redirectUrl = appendQuery(mprDashboardUrl, info);
+        window.open(redirectUrl);
+        // }
     }
 
     componentDidMount() {
