@@ -108,7 +108,8 @@ const styles = {
             },
             tableCellTotal: {
                 fontSize: '18px',
-                fontWeight: 700
+                fontWeight: 700,
+                'border-top':'2pt solid gray'
             }
         }
     },
@@ -211,7 +212,7 @@ class MPRSummary extends React.Component {
                     versionArray.unshift("All");
                     this.setState({
                         versions: versionArray,
-                        selectedVersion:versionArray[0],
+                        selectedVersion: versionArray[0],
                     });
                     this.loadPRTable(selectedProduct, versionArray[0])
                 } else {
@@ -432,7 +433,7 @@ class MPRSummary extends React.Component {
                                         );
                                     })}
                                     <TableRow>
-                                        <TableCell style={styles.table.tableBody.tableCellTotal}> Total no of MPRs with pending documentation tasks </TableCell>
+                                        <TableCell style={styles.table.tableBody.tableCellTotal}> Total no of merged PRs with pending documentation tasks </TableCell>
                                         <TableCell style={styles.table.tableBody.tableCellTotal}> {totalPRCount} </TableCell>
                                     </TableRow>
                                 </TableBody>
