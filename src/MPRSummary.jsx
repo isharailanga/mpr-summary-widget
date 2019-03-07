@@ -84,18 +84,15 @@ const PageWrapper = withStyles({
 const CustomTableHeaderCell = styled(({ color, ...others }) => <TableCell {...others} />)({
     background: styledBy('color', {
         light: '#D1CFCF',
-        dark : 'linear-gradient(135deg,#2f2f32,#262628)'
+        dark: 'linear-gradient(135deg,#2f2f32,#262628)'
     }),
     color: styledBy('color', {
         light: '#081921',
-        dark : '#33b5e5'
+        dark: '#33b5e5'
     }),
 });
 
 const styles = {
-    // disabledCursor: {
-    //     cursor: text 
-    // },
     h4: {
         marginBottom: '20px'
     },
@@ -111,7 +108,13 @@ const styles = {
         tableBody: {
             tableCell: {
                 fontSize: '16px',
-                cursor: 'pointer'
+                // cursor: 'pointer'
+                cursorPointer: {
+                    cursor: 'pointer'
+                },
+                cursorText: {
+                    cursor: 'text'
+                },
             },
             tableCellTotal: {
                 fontSize: '18px',
@@ -125,6 +128,8 @@ const styles = {
         minWidth: 120,
     },
 };
+
+let noData;
 
 class MPRSummary extends React.Component {
 
@@ -435,23 +440,15 @@ class MPRSummary extends React.Component {
                                     {rows.map(row => {
                                         return (
                                             <TableRow
-                                             onMouseEnter={
-                                                (e)=>{if(row[1] == 0){
-                                                    // console.log("nodata");   
-                                                    this.state.noData=true;
-                                                }else{
-                                                    this.state.noData=false;
-                                                }
-                                             }} 
-                                             hover 
-                                             onClick={((e) => {
-                                                if (row[1] == 0) {
-                                                    return;
-                                                } else {
-                                                    console.log(row);
-                                                    this.handleRowClick(e, row);
-                                                }
-                                            })}>
+                                                style={((row[1] > 0) ? styles.table.tableBody.tableCell.cursorPointer : styles.table.tableBody.tableCell.cursorText)}
+                                                hover
+                                                onClick={((e) => {
+                                                    if (row[1] == 0) {
+                                                        return;
+                                                    } else {
+                                                        this.handleRowClick(e, row);
+                                                    }
+                                                })}>
                                                 {row.map((data) => {
                                                     return (
                                                         <TableCell style={styles.table.tableBody.tableCell}> {data} </TableCell>
