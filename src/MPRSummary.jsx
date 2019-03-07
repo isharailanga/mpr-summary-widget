@@ -84,11 +84,18 @@ const PageWrapper = withStyles({
 const CustomTableHeaderCell = styled(({ color, ...others }) => <TableCell {...others} />)({
     background: styledBy('color', {
         light: '#D1CFCF',
-        dark: '#6B6B6B'
-    })
+        dark : 'linear-gradient(135deg,#2f2f32,#262628)'
+    }),
+    color: styledBy('color', {
+        light: '#081921',
+        dark : '#33b5e5'
+    }),
 });
 
 const styles = {
+    // disabledCursor: {
+    //     cursor: text 
+    // },
     h4: {
         marginBottom: '20px'
     },
@@ -319,7 +326,7 @@ class MPRSummary extends React.Component {
     }
 
     handleRowClick(e, data) {
-        if(data[1] == 0){
+        if (data[1] == 0) {
             alert("No Merged PRs");
             return;
         }
@@ -346,7 +353,7 @@ class MPRSummary extends React.Component {
         }
 
         // if (data[1] > 0) {
-        let info = {    
+        let info = {
             product: this.state.selectedProduct,
             version: this.state.selectedVersion,
             status: docStat,
@@ -427,7 +434,24 @@ class MPRSummary extends React.Component {
                                 <TableBody>
                                     {rows.map(row => {
                                         return (
-                                            <TableRow hover onClick={((e) => this.handleRowClick(e, row))}>
+                                            <TableRow
+                                             onMouseEnter={
+                                                (e)=>{if(row[1] == 0){
+                                                    // console.log("nodata");   
+                                                    this.state.noData=true;
+                                                }else{
+                                                    this.state.noData=false;
+                                                }
+                                             }} 
+                                             hover 
+                                             onClick={((e) => {
+                                                if (row[1] == 0) {
+                                                    return;
+                                                } else {
+                                                    console.log(row);
+                                                    this.handleRowClick(e, row);
+                                                }
+                                            })}>
                                                 {row.map((data) => {
                                                     return (
                                                         <TableCell style={styles.table.tableBody.tableCell}> {data} </TableCell>
